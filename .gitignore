@@ -1,0 +1,43 @@
+# Environnement virtuel
+venv/
+env/
+.env
+
+# Fichiers Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Base de données SQLite (si tu utilises SQLite localement)
+*.sqlite3
+
+# Fichiers de configuration sensibles
+*.env
+.env.*
+local_settings.py
+settings.py  # À exclure si tu y as des clés sensibles, sinon garde-le
+
+# Fichiers de cache et temporaires
+*.log
+*.pot
+*.cache
+*.pid
+*.seed
+
+# Fichiers de développement local
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Fichiers statiques collectés
+staticfiles/
+
+# Fichiers de migrations (optionnel, si tu ne veux pas les versionner)
+*/migrations/*
+!*/migrations/__init__.py
+
+# Fichiers d'éditeur
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
