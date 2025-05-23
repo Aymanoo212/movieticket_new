@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+<title>{{ title }} - Morro_Cine Staff</title>
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card mx-auto text-light" style="max-width: 600px; animation: fadeIn 0.5s ease-in; background-color: #1C2526;">
+        <div class="card-body p-5">
+            <h3 class="card-title text-center" style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">{{ title }}</h3>
+            <p class="text-center" style="font-family: 'Roboto', sans-serif;">
+                Are you sure you want to delete "<strong>{{ item }}</strong>"?
+                {% if title == 'Delete Show' %}
+                <br>This will remove the show for "{{ item }}" from the schedule.
+                {% elif title == 'Delete Film' %}
+                <br>This will also delete all associated shows and banners.
+                {% elif title == 'Delete Salle' %}
+                <br>This will prevent scheduling new shows in "{{ item }}".
+                {% elif title == 'Delete Banner' %}
+                <br>This will remove the banner from the homepage.
+                {% endif %}
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="text-center">
+                    <button type="submit" class="btn btn-danger mx-2" style="font-family: 'Roboto', sans-serif;">Confirm Delete</button>
+                    <a href="{% url 'staff:dashboard' %}" class="btn btn-secondary mx-2" style="font-family: 'Roboto', sans-serif;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

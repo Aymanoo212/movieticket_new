@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load utils %}
+{% block title %}
+<title>My Bookings - Morro_Cine</title>
+{% endblock %}
+{% block content %}
+<div class="container" id="movie-content" style="animation: fadeIn 0.5s ease-in;">
+    <h2 class="mb-4" style="font-family: 'Bebas Neue', sans-serif; font-weight: 400; color: #D4A017;">My Bookings</h2>
+    {% if data %}
+    <div class="table-responsive">
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th class="tab">Poster</th>
+                    <th class="tab">Show Date</th>
+                    <th class="tab">Movie</th>
+                    <th class="tab">Hall</th>
+                    <th class="tab">Showtime</th>
+                    <th class="tab">Seats</th>
+                    <th class="tab">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td class="tab"><img src="{{ row.show.movie.url }}" style="height: 50px; width: 40px; border-radius: 5px; object-fit: cover;"></td>
+                    <td class="tab">{{ row.show_date }}</td>
+                    <td class="tab">{{ row.show.movie.movie_name }}</td>
+                    <td class="tab">{{ row.show.salle.name }}</td>
+                    <td class="tab">{{ row.show.showtime|time:"h:i A" }}</td>
+                    <td class="tab">{{ row.seat_num }}</td>
+                    <td class="tab">
+                        <a class="btn {% if row.show_date|bstatus == 'Cancel' %}btn-danger{% else %}btn-secondary{% endif %} btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal-{{ row.id }}">{{ row.show_date|bstatus }}</a>
+                        <a class="btn btn-success btn-sm ms-1" href="{% url 'checkout' %}?download_pdf=true&booking_id={{ row.id }}">PDF</a>
+                    </td>
+                </tr>
+                <div class="modal fade" id="cancelModal-{{ row.id }}" tabindex="-1" aria-labelledby="cancelModalLabel-{{ row.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header border-0">
+                                <h5 class="modal-title" id="cancelModalLabel-{{ row.id }}" style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">Confirm Cancellation</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-light">
+                                Are you sure you want to cancel your booking for <strong>{{ row.show.movie.movie_name }}</strong> in <strong>{{ row.show.salle.name }}</strong> on {{ row.show_date }} at {{ row.show.showtime|time:"h:i A" }}?
+                            </div>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a href="{% url 'cancel_booking' row.id %}" class="btn btn-danger">Confirm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-light">No bookings yet. <a href="{% url 'show_selection' %}?date={{ tomorrow }}" class="text-warning">Book a show now!</a></p>
+    {% endif %}
+</div>
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .text-warning:hover {
+        color: #b58913 !important;
+    }
+</style>
+{% endblock %}

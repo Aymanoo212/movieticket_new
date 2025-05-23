@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+<title>Welcome - Morro_Cine</title>
+{% endblock %}
+{% block content %}
+{% if banners %}
+<div class="container mb-5">
+    <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+            {% for banner in banners %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <a href="{% url 'movie_detail' banner.movie.id %}">
+                    <img class="d-block w-100 bannerimg" src="{{ banner.url }}" alt="{{ banner.movie.movie_name }}" style="height: 400px; object-fit: cover;">
+                </a>
+                <div class="carousel-caption d-none d-md-block">
+                    <h5 style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">{{ banner.movie.movie_name }}</h5>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</div>
+{% endif %}
+<section class="py-5 content" style="animation: fadeIn 0.5s ease-in;">
+    <div class="container">
+        <h2 class="mb-4" style="font-family: 'Bebas Neue', sans-serif; font-weight: 400; color: #D4A017;">Now Showing</h2>
+        {% if films %}
+        <div class="row gx-4 row-cols-2 row-cols-md-3 row-cols-xl-4">
+            {% for film in films %}
+            <div class="col mb-4">
+                <a href="{% url 'movie_detail' film.id %}">
+                    <div class="card filmcards text-light">
+                        <img class="card-img-top" src="{{ film.url }}" alt="{{ film.movie_name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ film.movie_name }}</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-light">No movies available. Check back later or <a href="{% url 'show_selection' %}?date={{ tomorrow }}" class="text-warning">browse upcoming shows</a>.</p>
+        {% endif %}
+    </div>
+</section>
+<style>
+    .filmcards:hover {
+        transform: scale(1.05);
+        transition: all 0.3s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

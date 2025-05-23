@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load utils %}
+{% block title %}
+<title>{{ film.movie_name }} - Morro_Cine</title>
+{% endblock %}
+{% block content %}
+<div class="container" id="movie-content" style="animation: fadeIn 0.5s ease-in;">
+    <div class="row">
+        <div class="col-md-4 d-flex justify-content-center">
+            <div class="card text-center border-0" style="width: 18rem;">
+                <img class="card-img-top" src="{{ film.url }}" alt="{{ film.movie_name }}">
+                <div class="card-body">
+                    <a href="{% url 'show_selection' %}?date={{ tomorrow }}" class="btn btn-primary">Get Tickets</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <h1 style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">{{ film.movie_name }}</h1>
+            <h3 style="font-family: 'Roboto', sans-serif; color: #FFFFFF;">{{ film.movie_lang }} | {{ film.movie_genre }}</h3>
+            <p>
+                {% if showtimes %}
+                <em style="color: #D4A017;">Available showtimes:</em><br>
+                {% for show in showtimes %}
+                <a href="{% url 'show_selection' %}?date={{ tomorrow }}" class="btn btn-primary me-2 mb-2">
+                    {{ show.showtime|time:"h:i A" }} ({{ show.salle.name }}) on {{ tomorrow }}
+                </a>
+                {% endfor %}
+                {% else %}
+                <em style="color: #ff4d4d;">No shows available.</em>
+                {% endif %}
+            </p>
+            <p style="font-family: 'Roboto', sans-serif; color: #FFFFFF;">{{ film.movie_plot }}</p>
+        </div>
+    </div>
+</div>
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

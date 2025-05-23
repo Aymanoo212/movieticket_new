@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+<title>Checkout - Morro_Cine</title>
+{% endblock %}
+{% block content %}
+<div class="container text-center" id="movie-content" style="animation: fadeIn 0.5s ease-in;">
+    {% if film %}
+    <h1 class="text-success mb-4" style="font-family: 'Bebas Neue', sans-serif; font-weight: 400; color: #D4A017;">Tickets Booked Successfully</h1>
+    <div class="card mx-auto text-light" style="max-width: 600px;">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-center mb-3">
+                <img src="{{ film.url }}" alt="{{ film.movie_name }}" style="height: 100px; width: 80px; border-radius: 10px; object-fit: cover;">
+            </div>
+            <p><strong>Movie:</strong> {{ film.movie_name }}</p>
+            <p><strong>Hall:</strong> {{ salle.name }}</p>
+            <p><strong>Date:</strong> {{ sdate }}</p>
+            <p><strong>Showtime:</strong> {{ show.showtime|time:"h:i A" }}</p>
+            <p><strong>Seats:</strong> {{ seats }}</p>
+            <p><strong>Total:</strong> ${{ total }}</p>
+            <div class="mt-3">
+                <a class="btn btn-primary" href="{% url 'my_bookings' %}">Go to Bookings</a>
+                <a class="btn btn-success ms-2" href="{% url 'checkout' %}?download_pdf=true&booking_id={{ booking_id }}">Download Receipt</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <h1 class="text-danger mb-4" style="font-family: 'Bebas Neue', sans-serif; font-weight: 400; color: #D4A017;">No Booking Details Available</h1>
+    <a class="btn btn-primary" href="{% url 'index' %}">Return Home</a>
+    {% endif %}
+</div>
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

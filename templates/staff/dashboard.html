@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+<title>Staff Dashboard - Morro_Cine</title>
+{% endblock %}
+{% block content %}
+<div class="container" id="movie-content" style="animation: fadeIn 0.5s ease-in;">
+    <h2 class="mb-4" style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">Staff Dashboard</h2>
+
+    <!-- Films Section -->
+    <div class="dashboard-section mb-5">
+        <h3 style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">Films</h3>
+        <a href="{% url 'staff:film_add' %}" class="btn btn-success mb-3" style="font-family: 'Roboto', sans-serif;">Add Film</a>
+        {% if data.films %}
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Poster</th>
+                    <th>Name</th>
+                    <th>Language</th>
+                    <th>Genre</th>
+                    <th>Duration (min)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for film in data.films %}
+                <tr>
+                    <td><img src="{{ film.url }}" style="height: 60px; width: 45px; object-fit: cover;"></td>
+                    <td>{{ film.movie_name }}</td>
+                    <td>{{ film.movie_lang|default:"N/A" }}</td>
+                    <td>{{ film.movie_genre|default:"N/A" }}</td>
+                    <td>{{ film.duration }}</td>
+                    <td>
+                        <a href="{% url 'staff:film_edit' film.pk %}" class="btn btn-primary btn-sm" style="font-family: 'Roboto', sans-serif;">Edit</a>
+                        <a href="{% url 'staff:film_delete' film.pk %}" class="btn btn-danger btn-sm" style="font-family: 'Roboto', sans-serif;">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-secondary" style="font-family: 'Roboto', sans-serif;">No films available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Shows Section -->
+    <div class="dashboard-section mb-5">
+        <h3 style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">Shows</h3>
+        <a href="{% url 'staff:show_add' %}" class="btn btn-success mb-3" style="font-family: 'Roboto', sans-serif;">Add Show</a>
+        {% if data.shows %}
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Movie</th>
+                    <th>Hall</th>
+                    <th>Showtime</th>
+                    <th>Duration (min)</th>
+                    <th>Price</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for show in data.shows %}
+                <tr>
+                    <td>{{ show.movie.movie_name }}</td>
+                    <td>{{ show.salle.name }}</td>
+                    <td>{{ show.showtime|time:"h:i A" }}</td>
+                    <td>{{ show.movie.duration }}</td>
+                    <td>${{ show.price }}</td>
+                    <td>{{ show.start_date }}</td>
+                    <td>{{ show.end_date }}</td>
+                    <td>
+                        <a href="{% url 'staff:show_edit' show.pk %}" class="btn btn-primary btn-sm" style="font-family: 'Roboto', sans-serif;">Edit</a>
+                        <a href="{% url 'staff:show_delete' show.pk %}" class="btn btn-danger btn-sm" style="font-family: 'Roboto', sans-serif;">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-secondary" style="font-family: 'Roboto', sans-serif;">No shows available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Banners Section -->
+    <div class="dashboard-section mb-5">
+        <h3 style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">Banners</h3>
+        <a href="{% url 'staff:banner_add' %}" class="btn btn-success mb-3" style="font-family: 'Roboto', sans-serif;">Add Banner</a>
+        {% if data.banners %}
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Movie</th>
+                    <th>Banner Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for banner in data.banners %}
+                <tr>
+                    <td>{{ banner.movie.movie_name }}</td>
+                    <td><img src="{{ banner.url }}" style="height: 60px; width: 120px; object-fit: cover;"></td>
+                    <td>
+                        <a href="{% url 'staff:banner_edit' banner.pk %}" class="btn btn-primary btn-sm" style="font-family: 'Roboto', sans-serif;">Edit</a>
+                        <a href="{% url 'staff:banner_delete' banner.pk %}" class="btn btn-danger btn-sm" style="font-family: 'Roboto', sans-serif;">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-secondary" style="font-family: 'Roboto', sans-serif;">No banners available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Halls Section -->
+    <div class="dashboard-section mb-5">
+        <h3 style="font-family: 'Bebas Neue', sans-serif; color: #D4A017;">Halls</h3>
+        <a href="{% url 'staff:salle_add' %}" class="btn btn-success mb-3" style="font-family: 'Roboto', sans-serif;">Add Hall</a>
+        {% if data.salles %}
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Capacity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for salle in data.salles %}
+                <tr>
+                    <td>{{ salle.name }}</td>
+                    <td>{{ salle.capacity }}</td>
+                    <td>
+                        <a href="{% url 'staff:salle_edit' salle.pk %}" class="btn btn-primary btn-sm" style="font-family: 'Roboto', sans-serif;">Edit</a>
+                        <a href="{% url 'staff:salle_delete' salle.pk %}" class="btn btn-danger btn-sm" style="font-family: 'Roboto', sans-serif;">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-secondary" style="font-family: 'Roboto', sans-serif;">No halls available.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+    .dashboard-section {
+        margin-bottom: 2rem;
+    }
+    .table-dark th, .table-dark td {
+        font-family: 'Roboto', sans-serif;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

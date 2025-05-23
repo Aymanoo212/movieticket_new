@@ -1,0 +1,41 @@
+.scontainer {
+    text-align: center;
+    margin: 0 auto;
+    max-width: 400px;
+}
+.screen {
+    background: #D4A017;
+    height: 20px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.srow {
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+}
+.seat {
+    background: #1C2526;
+    height: 20px;
+    width: 25px;
+    margin: 3px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.seat:hover:not(.occupied) {
+    background: #b58913;
+}
+.seat.selected {
+    background: #D4A017;
+}
+.seat.occupied {
+    background: #FFFFFF;
+}
+.seatindex, .seatnumber {
+    width: 25px;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    color: #D4A017;
+}
