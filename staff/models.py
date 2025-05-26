@@ -43,13 +43,14 @@ class show(models.Model):
             raise ValidationError("Start date cannot be after end date.")
 
         # Check for overlapping shows in the same salle
+
         if self.movie and self.salle:  # Ensure movie and salle are set
             tz = timezone.get_current_timezone()
             current_show_start_date = self.start_date
             current_show_end_date = self.end_date
             duration_minutes = self.movie.duration
 
-            # Iterate over each date in the show’s date range
+            # pour vérifier les conflits de programmation.
             current_date = current_show_start_date
             while current_date <= current_show_end_date:
                 # Calculate start and end datetimes for the current show
@@ -67,7 +68,9 @@ class show(models.Model):
                     existing_show_datetime = datetime.combine(current_date, existing_show.showtime, tzinfo=tz)
                     existing_end_datetime = existing_show_datetime + timedelta(minutes=existing_show.movie.duration)
 
-                    # Check if time slots overlap
+                    # Vérifie s'il y a un chevauchement entre la séance actuelle et une séance existante :
+                    # Si l'heure de fin de la nouvelle séance est après le début de l'existante et
+                    # l'heure de début de la nouvelle séance est avant la fin de l'existante, il y a un conflit.
                     if not (end_datetime <= existing_show_datetime or show_datetime >= existing_end_datetime):
                         raise ValidationError(
                             f"Show conflicts with '{existing_show.movie.movie_name}' "
@@ -75,7 +78,7 @@ class show(models.Model):
                             f"to {(existing_show_datetime + timedelta(minutes=existing_show.movie.duration)).strftime('%I:%M %p')} "
                             f"in {self.salle.name}."
                         )
-
+                # Passe à la date suivante dans la boucle.
                 current_date += timedelta(days=1)
 
     def save(self, *args, **kwargs):

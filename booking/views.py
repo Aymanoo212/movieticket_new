@@ -5,7 +5,7 @@ from staff.models import film, show, banner, Salle
 from .models import Booking
 from django.http import HttpResponse, JsonResponse
 from datetime import datetime, timedelta, time
-from django.utils import timezone  # Correct import for timezone
+from django.utils import timezone
 from django.db.models import Q
 import re
 from reportlab.lib.pagesizes import letter
@@ -14,15 +14,10 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from io import BytesIO
 
-import logging  # For debugging
-
-# Set up logging
-logger = logging.getLogger(__name__)
-
-def index(request):
+# qui affiche la page d'accueil avec les bannières et les films disponibles.
+def index(request): 
     banners = banner.objects.all()
     now = timezone.now()
-    logger.debug(f"Current time: {now}")
     
     # Get all films with shows between start_date and end_date
     films = film.objects.filter(
@@ -30,20 +25,17 @@ def index(request):
         show__start_date__lte=now.date()
     ).distinct()
     
-    # Log films for debugging
-    logger.debug(f"Films found: {[f.movie_name for f in films]}")
-    
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     return render(request, 'booking/index.html', {
         'banners': banners,
-        'films': films,  # Pass all films with valid shows
+        'films': films,
         'tomorrow': tomorrow
     })
 
+# pour afficher les détails d'un film spécifique
 def movie_detail(request, movie_id):
     film_obj = get_object_or_404(film, id=movie_id)
     now = timezone.now()
-    logger.debug(f"Movie: {film_obj.movie_name}, Duration: {film_obj.duration}, Current time: {now}")
     
     showtimes = show.objects.filter(
         movie=film_obj,
@@ -51,17 +43,17 @@ def movie_detail(request, movie_id):
         start_date__lte=now.date()
     ).select_related('salle')
 
-    # Filter out shows that have ended today
+    # filtrer les séances encore valides aujourd'hui
     filtered_showtimes = []
     tz = timezone.get_current_timezone()
+
+    # Parcourt les séances pour filtrer celles qui ne sont pas encore terminées :
     for s in showtimes:
         show_datetime = datetime.combine(now.date(), s.showtime, tzinfo=tz)
         end_datetime = show_datetime + timedelta(minutes=film_obj.duration)
-        logger.debug(f"Show: {s.showtime}, Start: {show_datetime}, End: {end_datetime}")
         if now.date() < s.start_date or (now.date() == s.start_date and now < end_datetime):
             filtered_showtimes.append(s)
 
-    logger.debug(f"Filtered showtimes: {[s.showtime for s in filtered_showtimes]}")
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     return render(request, 'booking/movie_detail.html', {
         'film': film_obj,
@@ -69,6 +61,7 @@ def movie_detail(request, movie_id):
         'tomorrow': tomorrow
     })
 
+# pour permettre à l'utilisateur de choisir une séance pour une date donnée.
 def show_selection(request):
     date_str = request.GET.get('date')
     default_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
@@ -85,7 +78,6 @@ def show_selection(request):
         date = default_date
 
     now = timezone.now()
-    logger.debug(f"Selected date: {selected_date}, Current time: {now}")
     
     films = film.objects.prefetch_related('show_set__salle').filter(
         show__start_date__lte=selected_date, 
@@ -94,23 +86,24 @@ def show_selection(request):
     
     films_dict = {}
     tz = timezone.get_current_timezone()
+
+    # Parcourt les films et leurs séances pour créer un dictionnaire
     for f in films:
         showtimes = {}
         for s in f.show_set.filter(
             start_date__lte=selected_date, 
             end_date__gte=selected_date
         ):
+            # vérifie que la séance n'est pas terminée
             show_datetime = datetime.combine(selected_date, s.showtime, tzinfo=tz)
             end_datetime = show_datetime + timedelta(minutes=f.duration)
-            logger.debug(f"Film: {f.movie_name}, Show: {s.showtime}, Start: {show_datetime}, End: {end_datetime}")
-            # Include show if it's on a future date or hasn't ended today
             if selected_date > now.date() or (selected_date == now.date() and now < end_datetime):
                 showtimes[s.id] = {'showtime': s.showtime, 'salle': s.salle.name}
         if showtimes:
             films_dict[f.movie_name] = {'url': f.url, 'showtimes': showtimes}
     
-    logger.debug(f"Films with showtimes: {films_dict.keys()}")
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    # Calcule la date de demain et celle dans 30 jours pour limiter les choix de dates.
     thirty_days_later = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
     return render(request, 'booking/show_selection.html', {
         'films': films_dict, 
@@ -127,7 +120,9 @@ def my_bookings(request):
     return render(request, 'booking/bookings.html', {'data': bookings, 'today': today, 'tomorrow': tomorrow})
 
 def generate_booking_pdf(booking, film, salle, show, sdate, seats, total):
+    # Crée un buffer en mémoire pour stocker le PDF
     buffer = BytesIO()
+    # Initialise un document PDF avec la taille letter
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     elements = []
     styles = getSampleStyleSheet()
@@ -137,7 +132,7 @@ def generate_booking_pdf(booking, film, salle, show, sdate, seats, total):
         name='Title',
         fontSize=18,
         spaceAfter=20,
-        alignment=1,  # Center
+        alignment=1,
         textColor=colors.darkblue,
         fontName='Helvetica-Bold'
     )
@@ -147,9 +142,9 @@ def generate_booking_pdf(booking, film, salle, show, sdate, seats, total):
         spaceAfter=10,
         fontName='Helvetica'
     )
-    
+
     # Title
-    elements.append(Paragraph("MovieTicket Booking Receipt", title_style))
+    elements.append(Paragraph("Morro_Cine Booking Receipt", title_style))
     elements.append(Spacer(1, 12))
     
     # Booking details
@@ -158,7 +153,7 @@ def generate_booking_pdf(booking, film, salle, show, sdate, seats, total):
         ["Hall:", salle.name],
         ["Date:", sdate],
         ["Showtime:", show.showtime.strftime('%I:%M %p')],
-        ["Seats:", seats],  # Keep as-is (e.g., "C4,A5")
+        ["Seats:", seats],
         ["Total:", f"${total:.2f}"],
         ["User:", booking.user.username],
         ["Booking ID:", str(booking.id)],
@@ -180,11 +175,14 @@ def generate_booking_pdf(booking, film, salle, show, sdate, seats, total):
     
     # Footer
     elements.append(Spacer(1, 20))
-    elements.append(Paragraph("Thank you for booking with MovieTicket!", normal_style))
-    elements.append(Paragraph("Contact us at support@movieticket.com", normal_style))
-    
+    elements.append(Paragraph("Thank you for booking with Morro_Cine!", normal_style))
+    elements.append(Paragraph("Contact us at support@Morro_Cine.com", normal_style))
+
+    #Génère le PDF à partir des éléments.
     doc.build(elements)
+    #Récupère le contenu du buffer.
     pdf = buffer.getvalue()
+    #Ferme le buffer et retourne le PDF.
     buffer.close()
     return pdf
 
@@ -198,7 +196,6 @@ def checkout(request):
         if show_id and show_date and seats:
             show_obj = get_object_or_404(show, id=show_id)
             seat_list = seats.split(',')
-            # Basic format check before model validation
             seat_pattern = re.compile(r'^[A-Z][1-9][0-9]*$')
             for seat in seat_list:
                 if not seat_pattern.match(seat.strip()):
@@ -218,6 +215,7 @@ def checkout(request):
                     'error': str(e),
                     'tomorrow': tomorrow
                 })
+            # Calcule le coût total (nombre de sièges × prix de la séance).
             total = len(seat_list) * show_obj.price
             context = {
                 'film': show_obj.movie,
@@ -240,6 +238,7 @@ def checkout(request):
         seats = booking.seat_num
         total = len(seats.split(',')) * show_obj.price
         
+        # Génère le PDF de réservation.
         pdf = generate_booking_pdf(booking, film, salle, show_obj, sdate, seats, total)
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="booking_{booking.id}_receipt.pdf"'
@@ -247,6 +246,7 @@ def checkout(request):
         return response
     return redirect('index')
 
+# pour annuler une réservation.
 @login_required
 def cancel_booking(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
@@ -254,13 +254,16 @@ def cancel_booking(request, booking_id):
         booking.delete()
     return redirect('my_bookings')
 
+# pour récupérer les sièges réservés pour une séance spécifique.
 def booked_seats(request):
     show_id = request.GET.get('show_id')
     show_date = request.GET.get('show_date')
     bookings = Booking.objects.filter(show_id=show_id, show_date=show_date)
+    # Combine tous les numéros de sièges réservés en une seule chaîne séparée par des virgules.
     seats = ','.join([b.seat_num for b in bookings])
     return HttpResponse(seats)
 
+# pour retourner les détails d'une séance en JSON.
 def show_details(request):
     show_id = request.GET.get('show_id')
     try:
