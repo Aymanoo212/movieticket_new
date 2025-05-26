@@ -17,7 +17,7 @@ class Booking(models.Model):
         seats = self.seat_num.split(',')
         salle_capacity = self.show.salle.capacity
         seat_pattern = re.compile(r'^[A-Z][1-9][0-9]*$')  # Matches A1, B12, etc.
-        max_seats_per_row = 8  # Matches show_selection.html (8 seats per row)
+        max_seats_per_row = 8  # indiquant qu'il y a 8 sièges par rangée
         row_labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
         for seat in seats:

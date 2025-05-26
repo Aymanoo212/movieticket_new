@@ -1,7 +1,7 @@
 from django import forms
 from .models import Account
 
-class RegistrationForm(forms.ModelForm):
+class RegistrationForm(forms.ModelForm): # enregistrer un nouvel utilisateur.
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
 
@@ -17,6 +17,6 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError("Passwords do not match")
         return cleaned_data
 
-class LoginForm(forms.Form):
+class LoginForm(forms.Form): # pour connecter un utilisateur existant.
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
