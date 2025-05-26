@@ -28,6 +28,10 @@ Il fournit également aux **administrateurs** une interface pour :
 👉 [Lien vers la présentation PowerPoint](./Presentation(Django).pptx)
 
 ---
+## 📄 Rapport du projet
+
+👉 [Voir le rapport complet](./Rapport_Projet_Cinema.pdf)
+---
 
 ## 🚀 Technologies utilisées
 - Python
